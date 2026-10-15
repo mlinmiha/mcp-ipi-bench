@@ -1,0 +1,65 @@
+[project]
+name = "mcp-ipi"
+version = "0.1.0"
+description = "Evaluation of Indirect Prompt Injection Attacks and Defences in Agents with MCP Tools"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "duckdb>=1.5,<2",
+    "mcp>=2.2,<3",
+    "openai>=3.22,<4",
+    "pydantic>=2.13,<3",
+    "python-dotenv>=1.2,<2",
+    "pyyaml>=6.0,<7",
+]
+
+[project.scripts]
+ipi = "mcp_ipi.cli:cli"
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.414",
+    "pytest>=9.1",
+    "ruff>=0.16,<0.17",
+    "types-pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "mcp_ipi"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "B",   # flake8-bugbear
+    "E4",  # pycodestyle: imports
+    "E7",  # pycodestyle: statements
+    "E9",  # pycodestyle: syntax/runtime errors
+    "ERA", # eradicate (commented-out code)
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "RUF", # ruff-specific rules
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade
+]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.pyright]
+include = ["src", "tests"]
+typeCheckingMode = "standard"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib -m 'not live and not r'"
+markers = [
+    "live: calls a real model API; deselected by default",
+    "r: runs R-based analysis; deselected by default",
+]

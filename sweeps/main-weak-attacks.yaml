@@ -1,0 +1,21 @@
+# The attacks of the full experiment that run with the baseline only: those under 5% ASR on every model in
+# sweeps/pilot-attacks.yaml, which leave a defense nothing to lower. Run with sweeps/main.yaml, into the same logdir.
+#
+#   uv run ipi sweep sweeps/main-weak-attacks.yaml --dry-run          # print the runs per run type: total, done, to do
+#   uv run --env-file .env ipi sweep sweeps/main-weak-attacks.yaml    # do the runs; rerun to resume, completed runs are skipped
+#   uv run ipi show --summary runs/*/workspace/*/<attack>/*.json      # one row per run and the summary line, for one attack
+#
+# Run type counts: M = models (5), D = defenses (1), A = attacks (1), U = user tasks (50), I = injection tasks (25);
+# 250 = the balanced subset of user task × injection task pairs.
+suite: workspace
+logdir: runs
+temperature: 0.0
+
+models: [openai/gpt-5.4-mini, google/gemini-3.5-flash-lite, deepseek/deepseek-v4.1-flash, qwen/qwen3.7-flash, mistralai/mistral-medium-3]
+defenses: [none]
+attacks: [direct-instruction]
+
+run_types:
+  security: {pairs: subset}  # user task + injection:  M × D × A × 250 = 1250
+
+concurrency: {openai: 16, google: 16, openrouter: 4}  # runs in flight per provider; others share openrouter

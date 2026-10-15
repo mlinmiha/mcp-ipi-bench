@@ -1,0 +1,31 @@
+# The full experiment, run after sweeps/pilot-tasks.yaml, sweeps/pilot-attacks.yaml and sweeps/pilot-defenses.yaml
+# are in order. Its attacks run with every defense; direct-instruction, under 5% ASR on every model in
+# sweeps/pilot-attacks.yaml, runs with the baseline only, in sweeps/main-weak-attacks.yaml and the same logdir.
+#
+#   uv run ipi check-suite                                       # check the suite, no model call
+#   uv run ipi sweep sweeps/main.yaml --dry-run                  # print the runs per run type: total, done, to do
+#   uv run --env-file .env ipi sweep sweeps/main.yaml            # do the runs; rerun to resume, completed runs are skipped
+#   uv run --env-file .env ipi sweep sweeps/main.yaml -f         # do every run again, even completed ones
+#   uv run ipi show --summary runs/**/*.json                     # one row per run and the summary line
+#
+# Run type counts: M = models (5), D = defenses (5), A = attacks (3), U = user tasks (50), I = injection tasks (25);
+# 250 = the balanced subset of user task × injection task pairs.
+suite: workspace
+logdir: runs
+temperature: 0.0
+
+models: [openai/gpt-5.4-mini, google/gemini-3.5-flash-lite, deepseek/deepseek-v4.1-flash, qwen/qwen3.7-flash, mistralai/mistral-medium-3]
+defenses: [none, spotlighting, sanitizer, tool-filter, security-policy]
+attacks: [fake-completion, task-aligned, tool-notice]
+
+run_types:
+  utility: {}                       # user task alone:               M × D × U = 1250
+  security: {pairs: subset}         # user task + injection:         M × D × A × 250 = 18750
+  injection_task_checks: {}         # injection task alone:          M × I = 125
+  subset_validation:                # all pairs, one configuration:  U × I = 1250, 250 of them also security runs
+    models: [openai/gpt-5.4-mini]
+    defenses: [none]
+    attacks: [tool-notice]
+    pairs: full
+
+concurrency: {openai: 16, google: 16, openrouter: 4}  # runs in flight per provider; others share openrouter

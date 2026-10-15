@@ -1,0 +1,5 @@
+inbox:       !include components/inbox.yaml
+web:         !include components/web.yaml
+cloud_drive: !include components/cloud_drive.yaml
+calendar:    !include components/calendar.yaml
+jira:        !include components/jira.yaml
